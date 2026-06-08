@@ -1,20 +1,40 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useState } from 'react';
+import SplashScreen from './screens/SplashScreen';
+import LoginScreen from './screens/LoginScreen';
+
+type Screen = 'splash' | 'login' | 'home';
 
 export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
-}
+  const [currentScreen, setCurrentScreen] = useState<Screen>('splash');
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+  if (currentScreen === 'splash') {
+    return (
+      <SplashScreen
+        onFinish={() => setCurrentScreen('login')}
+      />
+    );
+  }
+
+  if (currentScreen === 'login') {
+    return (
+      <LoginScreen
+        onLoginSuccess={() => {
+          // TODO: Ganti dengan navigasi ke halaman Home/Dashboard
+          console.log('Login berhasil!');
+          setCurrentScreen('home');
+        }}
+        onRegister={() => {
+          // TODO: Navigasi ke halaman Register
+          console.log('Ke halaman Register');
+        }}
+        onForgotPassword={() => {
+          // TODO: Navigasi ke halaman Forgot Password
+          console.log('Ke halaman Forgot Password');
+        }}
+      />
+    );
+  }
+
+  // Placeholder halaman home - ganti dengan komponen Home kamu
+  return null;
+}
