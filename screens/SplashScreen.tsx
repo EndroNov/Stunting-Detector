@@ -102,7 +102,7 @@ export default function SplashScreen({ onFinish }: SplashScreenProps) {
             <Stop offset="0%" stopColor="#F5FFFF" />
             <Stop offset="40%" stopColor="#DCEAE8" />
             <Stop offset="75%" stopColor="#B9D6D2" />
-            <Stop offset="100%" stopColor="#A6C7C2" />
+            <Stop offset="100%" stopColor="#AED9D0" />
           </RadialGradient>
         </Defs>
   

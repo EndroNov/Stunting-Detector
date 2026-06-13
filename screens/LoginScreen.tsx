@@ -1,4 +1,8 @@
 import React, { useState, useRef } from 'react';
+import HideEye from '../assets/icon/hide.png';
+import OpenEye from '../assets/icon/eye (1).png';
+import User from '../assets/icon/user.png';
+import Password from '../assets/icon/padlock.png';
 import Svg, { Defs, RadialGradient, Rect, Stop } from 'react-native-svg';
 import {
   View,
@@ -8,11 +12,12 @@ import {
   StyleSheet,
   Dimensions,
   StatusBar,
-  KeyboardAvoidingView,
+  TouchableWithoutFeedback,
   Platform,
   ScrollView,
   Animated,
   Image,
+  Keyboard,
 } from 'react-native';
 
 import LogoImage from '../assets/Asset_11.png';
@@ -68,11 +73,15 @@ export default function LoginScreen({
   };
 
   const handleLogin = async () => {
+    Keyboard.dismiss();
+    await new Promise(resolve => setTimeout(resolve, 300)); // Beri waktu untuk keyboard benar-benar hilang
+
     if (!nik || !password) {
       alert('NIK dan Password wajib diisi');
       return;
     }
 
+    Keyboard.dismiss();
     setIsLoading(true);
 
     // TODO: Ganti dengan API call ke backend Golang kamu
@@ -88,7 +97,7 @@ export default function LoginScreen({
     setTimeout(() => {
       setIsLoading(false);
       onLoginSuccess();
-    }, 1000);
+    }, 500);
   };
 
   const BackgroundGradient = () => (
@@ -108,7 +117,7 @@ export default function LoginScreen({
           <Stop offset="0%" stopColor="#F5FFFF" />
           <Stop offset="40%" stopColor="#DCEAE8" />
           <Stop offset="75%" stopColor="#B9D6D2" />
-          <Stop offset="100%" stopColor="#A6C7C2" />
+          <Stop offset="100%" stopColor="#AED9D0" />
         </RadialGradient>
       </Defs>
 
@@ -117,99 +126,108 @@ export default function LoginScreen({
   );
 
   return (
-    <KeyboardAvoidingView
-        style={styles.container}
-        // behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      >
-        <BackgroundGradient />
-
-        <StatusBar
-          barStyle="dark-content"
-          backgroundColor="transparent"
-          translucent
-        />
-
+    <View style={styles.container}>
+      <BackgroundGradient />
+      <StatusBar
+        barStyle="dark-content"
+        backgroundColor="transparent"
+        translucent
+      />
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <ScrollView
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode="on-drag"
         >
-        {/* Logo */}
-        <Image source={LogoImage} style={{ width: 180, height: 180, resizeMode: 'contain', marginBottom: 50, marginTop: 50 }} />
+          {/* Logo */}
+          <Image
+            source={LogoImage}
+            style={{ width: 180, height: 180, resizeMode: 'contain', marginBottom: 50, marginTop: 50 }}
+          />
 
-        {/* Judul */}
-        {/* <Text style={styles.title}>LOGIN</Text> */}
+          {/* Form Card */}
+          <View style={styles.card}>
 
-        {/* Form Card */}
-        <View style={styles.card}>
-          {/* NIK Field */}
-          <Text style={styles.label}>Nik (Nomor Induk Kependudukan)</Text>
-          <View style={styles.inputWrapper}>
-            <Text style={styles.inputIcon}>👤</Text>
-            <Text style={styles.inputSeparator}>:</Text>
-            <TextInput
-              style={styles.input}
-              value={nik}
-              onChangeText={setNik}
-              placeholder="Masukkan NIK"
-              keyboardType="numeric"
-              maxLength={16}
-              placeholderTextColor="#aaa"
-            />
+            {/* NIK Field */}
+            <Text style={styles.label}>Nik (Nomor Induk Kependudukan)</Text>
+            <View style={styles.inputWrapper}>
+              <Image
+                source={User}
+                style={{ width: 20, height: 17, resizeMode: 'contain', tintColor: '#555' }}
+              />
+              <Text style={styles.inputSeparator}> :</Text>
+              <TextInput
+                style={styles.input}
+                value={nik}
+                onChangeText={setNik}
+                placeholder="Masukkan NIK"
+                keyboardType="numeric"
+                maxLength={16}
+                placeholderTextColor="#aaa"
+              />
+            </View>
+
+            {/* Password Field */}
+            <Text style={styles.label}>Password</Text>
+            <View style={styles.inputWrapper}>
+              <Image
+                source={Password}
+                style={{ width: 20, height: 17, resizeMode: 'contain', tintColor: '#555' }}
+              />
+              <Text style={styles.inputSeparator}> :</Text>
+              <TextInput
+                style={styles.input}
+                value={password}
+                onChangeText={setPassword}
+                placeholder="Masukkan Password"
+                secureTextEntry={!showPassword}
+                placeholderTextColor="#aaa"
+              />
+              <TouchableOpacity
+                onPress={() => setShowPassword(!showPassword)}
+                style={styles.eyeButton}
+              >
+                <Image
+                  source={showPassword ? OpenEye : HideEye}
+                  style={{ width: 22, height: 22, resizeMode: 'contain', tintColor: '#555' }}
+                />
+              </TouchableOpacity>
+            </View>
+
+            {/* Tombol Login */}
+            <Animated.View style={{ transform: [{ scale: buttonScale }] }}>
+              <TouchableOpacity
+                style={[styles.loginButton, isLoading && styles.loginButtonDisabled]}
+                onPress={handleLogin}
+                onPressIn={handlePressIn}
+                onPressOut={handlePressOut}
+                disabled={isLoading}
+                activeOpacity={0.9}
+              >
+                <Text style={styles.loginButtonText}>
+                  {isLoading ? 'Loading...' : 'LOGIN'}
+                </Text>
+              </TouchableOpacity>
+            </Animated.View>
+
+            {/* Forgot Password */}
+            <TouchableOpacity onPress={onForgotPassword}>
+              <Text style={styles.forgotPassword}>Forget Password</Text>
+            </TouchableOpacity>
+
           </View>
 
-          {/* Password Field */}
-          <Text style={styles.label}>Password</Text>
-          <View style={styles.inputWrapper}>
-            <Text style={styles.inputIcon}>🔑</Text>
-            <Text style={styles.inputSeparator}>:</Text>
-            <TextInput
-              style={styles.input}
-              value={password}
-              onChangeText={setPassword}
-              placeholder="Masukkan Password"
-              secureTextEntry={!showPassword}
-              placeholderTextColor="#aaa"
-            />
-            <TouchableOpacity
-              onPress={() => setShowPassword(!showPassword)}
-              style={styles.eyeButton}
-            >
-              <Text style={styles.eyeIcon}>{showPassword ? '🙈' : '👁️'}</Text>
+          {/* Register Link */}
+          <View style={styles.registerContainer}>
+            <Text style={styles.registerText}>Belum mempunyai akun? </Text>
+            <TouchableOpacity onPress={onRegister}>
+              <Text style={styles.registerLink}>Regist.</Text>
             </TouchableOpacity>
           </View>
 
-          {/* Tombol Login */}
-          <Animated.View style={{ transform: [{ scale: buttonScale }] }}>
-            <TouchableOpacity
-              style={[styles.loginButton, isLoading && styles.loginButtonDisabled]}
-              onPress={handleLogin}
-              onPressIn={handlePressIn}
-              onPressOut={handlePressOut}
-              disabled={isLoading}
-              activeOpacity={0.9}
-            >
-              <Text style={styles.loginButtonText}>
-                {isLoading ? 'Loading...' : 'LOGIN'}
-              </Text>
-            </TouchableOpacity>
-          </Animated.View>
-
-          {/* Forgot Password */}
-          <TouchableOpacity onPress={onForgotPassword}>
-            <Text style={styles.forgotPassword}>Forget Password</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Register Link */}
-        <View style={styles.registerContainer}>
-          <Text style={styles.registerText}>Belum mempunyai akun? </Text>
-          <TouchableOpacity onPress={onRegister}>
-            <Text style={styles.registerLink}>Regist.</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+        </ScrollView>
+      </TouchableWithoutFeedback>
+    </View>
   );
 }
 
@@ -223,6 +241,7 @@ const styles = StyleSheet.create({
     paddingTop: 60,
     paddingBottom: 40,
     paddingHorizontal: 24,
+    minHeight: '100%',
   },
 
   // Logo styles
@@ -308,6 +327,7 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     borderWidth: 1,
     borderColor: '#000',
+    
   },
   label: {
     fontSize: 14,
